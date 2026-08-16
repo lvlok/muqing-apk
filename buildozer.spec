@@ -1,19 +1,34 @@
 [app]
-title = 沐晴
-package.name = muqing
-package.domain = com.yourname
+
+# 应用名称
+title = 沐晴AI
+
+# 包名（必须是唯一标识符）
+package.name = muqingai
+package.domain = com.muqing
+
+# 入口文件
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json
+source.include_exts = py,png,jpg,kv,atlas,txt,json,mp3,wav
 version = 0.1
-requirements = python3==3.10,kivy==2.3.0,pillow
-orientation = portrait
-fullscreen = 0
-android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
-android.api = 33
+
+# Python 版本
+python_version = 3.10
+
+# Android 配置
+android.api = 31
 android.minapi = 21
-android.ndk = 25b
-icon.filename = %(source.dir)s/ai_chat_icon.png
+android.arch = armeabi-v7a,arm64-v8a
+
+# 权限
+android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+
+# 依赖库（根据你的代码调整）
+requirements = python3,kivy,kivymd,requests,pillow,pygame,numpy
+
+# 图标（确保仓库根目录有这张图）
+icon.filename = ai_chat_icon.png
 
 [buildozer]
+
 log_level = 2
-warn_on_root = 1
