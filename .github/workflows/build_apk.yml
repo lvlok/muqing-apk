@@ -1,4 +1,4 @@
-name: Build 沐晴 APK (Direct Python)
+name: Build 沐晴 APK (Final Fix)
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Set up Python 3.10 directly
+      - name: Set up Python 3.10
         run: |
           sudo apt update
           sudo apt install -y python3.10 python3.10-venv python3-pip
@@ -22,7 +22,6 @@ jobs:
       - name: Create default icon (if missing)
         run: |
           if [ ! -f "ai_chat_icon.png" ]; then
-            echo "Icon not found, generating a default one..."
             sudo apt install -y imagemagick
             convert -size 512x512 xc:#ff99cc -font DejaVu-Sans-Bold -pointsize 200 -fill white -gravity center -annotate 0 "MQ" ai_chat_icon.png
           fi
@@ -47,7 +46,10 @@ jobs:
 
       - name: Build APK
         run: |
-          yes | python3.10 -m buildozer -v android debug
+          # 强制设置环境变量，确保 Buildozer 能找到文件和入口
+          export BUILDOZER_SOURCE_INCLUDE_EXTS="py,png,jpg,kv,atlas,txt,json,mp3,wav"
+          export BUILDOZER_ENTRYPOINT="main.py"
+          yes | python3.10 -m buildozer -v android debug --no-bootstrap
 
       - name: Upload APK
         if: success()
