@@ -1,4 +1,4 @@
-name: Build 沐晴 APK (Fixed)
+name: Build 沐晴 APK (Direct Python)
 
 on:
   workflow_dispatch:
@@ -13,34 +13,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: "3.10"
-          cache: 'pip' # 缓存 pip 依赖
+      - name: Set up Python 3.10 directly
+        run: |
+          sudo apt update
+          sudo apt install -y python3.10 python3.10-venv python3-pip
+          python3.10 --version
 
       - name: Create default icon (if missing)
         run: |
           if [ ! -f "ai_chat_icon.png" ]; then
             echo "Icon not found, generating a default one..."
+            sudo apt install -y imagemagick
             convert -size 512x512 xc:#ff99cc -font DejaVu-Sans-Bold -pointsize 200 -fill white -gravity center -annotate 0 "MQ" ai_chat_icon.png
-          else
-            echo "Icon found."
           fi
-        # 如果系统没有 convert 命令，这步会跳过，但 Buildozer 也会报错，所以我们先确保环境有它
         continue-on-error: true
 
       - name: Install system dependencies
         run: |
-          sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 libffi-dev libssl-dev \
-            libsqlite3-dev imagemagick # 安装 imagemagick 用于生成图标
+            libsqlite3-dev
 
       - name: Install Cython and Buildozer
         run: |
-          pip install --upgrade pip
-          pip install cython==0.29.33 buildozer==1.5.0 # 锁定版本
+          python3.10 -m pip install --upgrade pip
+          python3.10 -m pip install cython==0.29.33 buildozer==1.5.0
 
       - name: Cache Buildozer global dir
         uses: actions/cache@v4
@@ -50,7 +47,7 @@ jobs:
 
       - name: Build APK
         run: |
-          yes | buildozer -v android debug
+          yes | python3.10 -m buildozer -v android debug
 
       - name: Upload APK
         if: success()
