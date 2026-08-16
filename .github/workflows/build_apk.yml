@@ -1,4 +1,4 @@
-name: Build 沐晴 APK (Native Stable)
+name: Build 沐晴 APK
 
 on:
   workflow_dispatch:
@@ -8,7 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    
+    timeout-minutes: 60
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -24,7 +25,7 @@ jobs:
           sudo rm -rf .buildozer
           sudo rm -rf ~/.buildozer
 
-      - name: Create default icon (if missing)
+      - name: Create default icon if missing
         run: |
           if [ ! -f "ai_chat_icon.png" ]; then
             sudo apt install -y imagemagick
@@ -37,7 +38,7 @@ jobs:
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 libffi-dev libssl-dev \
-            libsqlite3-dev libffi-dev libjpeg-dev libltdl-dev libnss3-dev
+            libsqlite3-dev libjpeg-dev libltdl-dev libnss3-dev
 
       - name: Install Cython and Buildozer
         run: |
@@ -46,12 +47,11 @@ jobs:
 
       - name: Build APK
         run: |
-          # 确保 main.py 存在，这是打包的入口
           if [ ! -f "main.py" ]; then
-            echo "Error: main.py not found in the repository!"
+            echo "Error: main.py not found!"
             exit 1
           fi
-          yes | python3.10 -m buildozer -v android debug
+          python3.10 -m buildozer -v android debug --accept-licenses
 
       - name: Upload APK
         if: success()
