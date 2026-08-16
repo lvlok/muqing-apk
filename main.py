@@ -21,7 +21,6 @@ class ChatScreen(BoxLayout):
         self.spacing = 8
         self.padding = [10, 10, 10, 10]
 
-        # 标题栏
         title = Label(
             text="沐晴",
             color=get_color_from_hex("#ff99cc"),
@@ -32,14 +31,12 @@ class ChatScreen(BoxLayout):
         )
         self.add_widget(title)
 
-        # 聊天区
         self.scroll = ScrollView()
         self.chat_log = BoxLayout(orientation="vertical", size_hint_y=None, spacing=6)
         self.chat_log.bind(minimum_height=self.chat_log.setter("height"))
         self.scroll.add_widget(self.chat_log)
         self.add_widget(self.scroll)
 
-        # 输入区
         input_row = BoxLayout(size_hint_y=None, height="48dp", spacing=6)
         self.text_input = TextInput(
             hint_text="说点什么…",
@@ -60,11 +57,7 @@ class ChatScreen(BoxLayout):
         input_row.add_widget(send_btn)
         self.add_widget(input_row)
 
-        # 欢迎语
         self._add_bubble("沐晴初始化完成~ 你好呀！", "ai")
-
-        # 24h 主动消息
-        Clock.schedule_interval(self._check_24h, 60)
 
     def send_message(self, *args):
         text = self.text_input.text.strip()
@@ -72,7 +65,6 @@ class ChatScreen(BoxLayout):
             return
         self._add_bubble(text, "user")
         self.text_input.text = ""
-        # 简单回复逻辑（不依赖 core.py，确保能跑）
         reply = f"嗯…你说的是「{text}」对吧~"
         Clock.schedule_once(lambda dt: self._add_bubble(reply, "ai"), 0.5)
 
@@ -88,9 +80,6 @@ class ChatScreen(BoxLayout):
             bubble, "height", bubble.texture_size[1] + 16))
         self.chat_log.add_widget(bubble)
         self.scroll.scroll_to(bubble)
-
-    def _check_24h(self, dt):
-        pass  # 简化版暂不实现主动消息
 
 
 class MuQingApp(App):
