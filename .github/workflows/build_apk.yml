@@ -1,4 +1,4 @@
-name: Build 沐晴 APK (Auto SDK Setup)
+name: Build 沐晴 APK (JDK 17 Fix)
 
 on:
   workflow_dispatch:
@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Set up Python 3.10
         run: |
@@ -46,6 +52,8 @@ jobs:
           python3.10 -m pip install cython==0.29.33 buildozer==1.5.0
 
       - name: Setup Android SDK
+        env:
+          SKIP_JDK_VERSION_CHECK: "true"
         uses: android-actions/setup-android@v3
         with:
           api-level: 31
@@ -53,13 +61,14 @@ jobs:
           ndk: 28c
 
       - name: Build APK
+        env:
+          SKIP_JDK_VERSION_CHECK: "true"
         run: |
           if [ ! -f "main.py" ]; then
             echo "Error: main.py not found!"
             exit 1
           fi
           sed -i 's/# android.build_tools = .*/android.build_tools = 30.0.3/' buildozer.spec
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           python3.10 -m buildozer -v android debug --accept-licenses
 
       - name: Upload APK
