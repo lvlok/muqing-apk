@@ -38,12 +38,21 @@ jobs:
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 libffi-dev libssl-dev \
-            libsqlite3-dev libjpeg-dev libltdl-dev libnss3-dev
+            libsqlite3-dev libjpeg-dev libltdl-dev libnss3-dev wget unzip
 
       - name: Install Cython and Buildozer
         run: |
           python3.10 -m pip install --upgrade pip
           python3.10 -m pip install cython==0.29.33 buildozer==1.5.0
+
+      - name: Accept Android SDK licenses
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
+          unzip -q cmdline.zip -d ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          mv ~/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        continue-on-error: true
 
       - name: Build APK
         run: |
@@ -51,6 +60,8 @@ jobs:
             echo "Error: main.py not found!"
             exit 1
           fi
+          # 锁定 build-tools 版本
+          sed -i 's/# android.build_tools = .*/android.build_tools = 30.0.3/' buildozer.spec
           python3.10 -m buildozer -v android debug --accept-licenses
 
       - name: Upload APK
